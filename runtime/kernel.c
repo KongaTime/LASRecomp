@@ -92,13 +92,18 @@ static void deadline(struct timespec *ts, int64_t timeout_ns) {
 
 // Sleep on the current thread's condition. Returns false on timeout. Caller holds g_klock.
 static pthread_cond_t g_nothread_cond = PTHREAD_COND_INITIALIZER;
+// Time this thread spent blocked in the kernel (waits, sleeps): idle, not work. Frame pacing (exec.c vk_pace_frame)
+// takes the presenting thread's: a frame's busy time is its period minus this.
+__thread uint64_t g_blocked_ns;
+
 static bool kwait(int64_t timeout_ns, const struct timespec *ts) {
     pthread_cond_t *cv = t_cur ? &t_cur->cond : &g_nothread_cond;
-    if (timeout_ns < 0) {
-        pthread_cond_wait(cv, &g_klock);
-        return true;
-    }
-    return pthread_cond_timedwait(cv, &g_klock, ts) == 0;
+    uint64_t t0 = plat_now_ns();
+    bool r = true;
+    if (timeout_ns < 0) pthread_cond_wait(cv, &g_klock);
+    else r = pthread_cond_timedwait(cv, &g_klock, ts) == 0;
+    g_blocked_ns += plat_now_ns() - t0;
+    return r;
 }
 
 // ------------------------------------------------------------------ memory map
@@ -456,6 +461,7 @@ static uint32_t svc_signal_to_address(uint64_t addr, uint32_t type, int32_t valu
 }
 
 // ------------------------------------------------------------------ wait synchronization
+
 static uint32_t svc_wait_synchronization(uint64_t handles_ptr, int32_t count, int64_t timeout, int32_t *index) {
     pthread_mutex_lock(&g_klock);
     struct timespec ts;
@@ -613,6 +619,7 @@ static void svc_impl(Cpu *c, uint32_t imm, uint64_t pc) {
             uint64_t d = end - now < 50000000 ? end - now : 50000000;
             struct timespec ts = {(time_t)(d / 1000000000), (long)(d % 1000000000)};
             nanosleep(&ts, NULL);
+            g_blocked_ns += plat_now_ns() - now;
         }
         break;
     }

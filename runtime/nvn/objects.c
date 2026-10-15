@@ -46,7 +46,9 @@ NVN(nvnDeviceGetInteger) { *(int32_t *)AP(2) = (int32_t)device_integer((uint32_t
 NVN(nvnDeviceGetCurrentTimestampInNanoseconds) {
     RET(plat_now_ns());
 }
-NVN(nvnDeviceGetTimestampInNanoseconds) { RET(G(uint64_t, A(1), 8)); }  // counter.timestamp (ticks == ns here)
+NVN(nvnDeviceGetTimestampInNanoseconds) {  // counter.timestamp: Switch GPU ticks (614.4 MHz, as the counters are written)
+    RET((uint64_t)((unsigned __int128)G(uint64_t, A(1), 8) * 625 / 384));
+}
 NVN(nvnDeviceSetIntermediateShaderCache) { (void)c; }
 NVN(nvnDeviceGetTextureHandle) { RET((A(1) & 0xFFFFF) | ((A(2) & 0xFFF) << 20)); }
 NVN(nvnDeviceGetTexelFetchHandle) { RET(A(1) & 0xFFFFF); }
