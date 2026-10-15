@@ -129,6 +129,10 @@ mkdir -p "$app.new/sce_sys" "$app.new/sce_module" "$app.new/licenses"
 "$tool" self --sign --in "$work/eboot.elf.new" --out "$app.new/eboot.bin" --magic 0x1D3D154F
 "$tool" self --inspect --file "$app.new/eboot.bin" > /dev/null
 cp "$param" "$root/ps5/sce_sys/icon0.png" "$app.new/sce_sys/"
+# the home-screen art made from your own sources (ps5/tools/title-art.py), which git doesn't keep, over the above
+for asset in icon0.png pic0.dds pic1.dds; do
+    [[ -f $root/ps5/title-art/sce_sys/$asset ]] && cp "$root/ps5/title-art/sce_sys/$asset" "$app.new/sce_sys/"
+done
 (cd "$vulkan/runtime" && sha256sum --check --strict --quiet libc.prx.sha256)
 cp "$vulkan/runtime/libc.prx" "$app.new/sce_module/libc.prx"
 # what the runtime finds next to its executable (rt_resource): the start screen's font (OFL)

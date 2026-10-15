@@ -214,6 +214,8 @@ bool SDL_Vulkan_CreateSurface(SDL_Window *window, VkInstance instance, const str
     g_mode.refresh_rate_numerator = (int)best.parameters.refreshRate;
     g_mode.refresh_rate_denominator = 1000;
     fprintf(stderr, "[sdl-ps5] display: %dx%d @ %.2f Hz, plane %u\n", g_w, g_h, g_mode.refresh_rate, plane);
+    void ps5_pipeline_saver_start(void);  // (ps5/src/pipeline_saver.c: the device comes next)
+    ps5_pipeline_saver_start();
     return true;
 }
 

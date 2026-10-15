@@ -17,3 +17,5 @@ tools/venv/
 venv/
 __pycache__/
 .DS_Store
+# PS5 home-screen art from your own sources (ps5/tools/title-art.py)
+/ps5/title-art/

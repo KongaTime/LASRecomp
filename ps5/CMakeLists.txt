@@ -50,7 +50,8 @@ set(imgui ${ROOT}/third_party/imgui)
 set(imgui_sources ${imgui}/imgui.cpp ${imgui}/imgui_draw.cpp ${imgui}/imgui_tables.cpp ${imgui}/imgui_widgets.cpp
 	${imgui}/backends/imgui_impl_vulkan.cpp ${CMAKE_CURRENT_SOURCE_DIR}/sdl/imgui_impl_sdl3_ps5.cpp)
 set(ps5_sources ${CMAKE_CURRENT_SOURCE_DIR}/sdl/sdl_ps5.c ${CMAKE_CURRENT_SOURCE_DIR}/src/console.c
-	${CMAKE_CURRENT_SOURCE_DIR}/src/title.c ${CMAKE_CURRENT_SOURCE_DIR}/src/cwd.c ${DEPS}/volk/volk.c)
+	${CMAKE_CURRENT_SOURCE_DIR}/src/title.c ${CMAKE_CURRENT_SOURCE_DIR}/src/cwd.c
+	${CMAKE_CURRENT_SOURCE_DIR}/src/pipeline_saver.c ${DEPS}/volk/volk.c)
 
 # SMAA's reference shader as a C string (the Makefile's smaa_hlsl.inc rule)
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/inc/smaa_hlsl.inc
