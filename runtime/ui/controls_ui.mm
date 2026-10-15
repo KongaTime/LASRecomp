@@ -48,8 +48,15 @@ extern "C" void controls_bindings_draw(float scale) {
     SDL_free(ids);
     ImGui::TextUnformatted(line);
     ImGui::PushTextWrapPos(0);
+#ifdef __PROSPERO__  // (no keyboard on the console: the controller's bindings alone; circle selects)
+    const bool keys = false;
+    ImGui::TextDisabled("Select a binding with circle, then press the new button. 5 seconds without a press cancels. "
+                        "A button that's already in use swaps with the old one.");
+#else
+    const bool keys = true;
     ImGui::TextDisabled("Select a binding, then press the new button or key. Esc (or 5 seconds) cancels. A button "
                         "that's already in use swaps with the old one.");
+#endif
     ImGui::PopTextWrapPos();
 
     int cd, cs, ms;
@@ -74,10 +81,10 @@ extern "C" void controls_bindings_draw(float scale) {
     }
     if (msg[0]) ImGui::TextColored(ImVec4(0.93f, 0.76f, 0.33f, 1), "%s", msg);
 
-    if (ImGui::BeginTable("##binds", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_PadOuterX)) {
+    if (ImGui::BeginTable("##binds", keys ? 3 : 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_PadOuterX)) {
         ImGui::TableSetupColumn("Switch", ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableSetupColumn("Controller", ImGuiTableColumnFlags_WidthStretch, 1.3f);
-        ImGui::TableSetupColumn("Keyboard", ImGuiTableColumnFlags_WidthStretch, 1.3f);
+        if (keys) ImGui::TableSetupColumn("Keyboard", ImGuiTableColumnFlags_WidthStretch, 1.3f);
         ImGui::TableHeadersRow();
         // in the order a player thinks of them: face buttons, shoulders, Plus / Minus, d-pad, sticks
         static const int order[] = {BIND_A, BIND_B, BIND_X, BIND_Y, BIND_L, BIND_R, BIND_ZL, BIND_ZR, BIND_PLUS,
@@ -92,6 +99,7 @@ extern "C" void controls_bindings_draw(float scale) {
             ImGui::TableNextColumn();
             if (slot < BIND_PAD_COUNT) cell(BIND_DEV_PAD, slot, fam, cd, cs, ms);
             else ImGui::TextDisabled(slot < BIND_RS_UP ? "Left stick" : "Right stick");
+            if (!keys) continue;
             ImGui::TableNextColumn();
             cell(BIND_DEV_KEY, slot, fam, cd, cs, ms);
         }
@@ -101,10 +109,12 @@ extern "C" void controls_bindings_draw(float scale) {
     ImGui::BeginDisabled(bind_is_default(BIND_DEV_PAD));
     if (ImGui::Button("Reset controller to defaults")) { bind_capture_cancel(); bind_reset(BIND_DEV_PAD); }
     ImGui::EndDisabled();
-    ImGui::SameLine();
-    ImGui::BeginDisabled(bind_is_default(BIND_DEV_KEY));
-    if (ImGui::Button("Reset keyboard to defaults")) { bind_capture_cancel(); bind_reset(BIND_DEV_KEY); }
-    ImGui::EndDisabled();
+    if (keys) {
+        ImGui::SameLine();
+        ImGui::BeginDisabled(bind_is_default(BIND_DEV_KEY));
+        if (ImGui::Button("Reset keyboard to defaults")) { bind_capture_cancel(); bind_reset(BIND_DEV_KEY); }
+        ImGui::EndDisabled();
+    }
     ImGui::PushTextWrapPos(0);
     ImGui::TextDisabled("Bindings apply to the game only. Menus keep the fixed layout (right face button / Enter "
                         "select, bottom face button / Esc back), and the in-game menu always opens with F1 or Esc, or "
