@@ -118,7 +118,11 @@ static void load_fonts(void) {
                          // Linux: DejaVu Sans (Debian / Ubuntu, Arch, Fedora). Not Noto Sans CJK: CFF outlines,
                          // which the game's font engine crashes on (it wants TrueType)
                          "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "/usr/share/fonts/TTF/DejaVuSans.ttf",
-                         "/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf"};
+                         "/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf",
+#ifdef __PROSPERO__
+                         "/app0/DejaVuSans.ttf",  // (shipped in the title folder: ps5/tools/link-title.sh)
+#endif
+                         };
     for (size_t i = 0; i < sizeof std / sizeof *std && !fonts[0].addr; i++)
         if (std[i]) load_one(std[i], &fonts[0]);
     if (!fonts[0].addr) FATAL("no usable system font substitute\n");

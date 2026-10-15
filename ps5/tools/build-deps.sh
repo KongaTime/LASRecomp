@@ -47,6 +47,15 @@ if [[ ! -f $P/llvm/LICENSE.TXT ]]; then
     echo "8d85c1057d742e597985c7d4e6320b015a9139385cff4cbae06ffc0ebe89afee  $P/llvm/LICENSE.TXT.tmp" | sha256sum --check --strict --quiet
     mv "$P/llvm/LICENSE.TXT.tmp" "$P/llvm/LICENSE.TXT"
 fi
+# DejaVu Sans: the game's system font where the player has imported no Switch font (runtime/hle/pl.c), the one
+# the Linux build falls back on. The game's font engine wants TrueType outlines and the glyphs it asks for.
+if [[ ! -f $P/fonts/DejaVuSans.ttf ]]; then
+    mkdir -p "$P/fonts"
+    curl -sSfL -o "$W/dejavu.zip" https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.zip
+    echo "7576310b219e04159d35ff61dd4a4ec4cdba4f35c00e002a136f00e96a908b0a  $W/dejavu.zip" | sha256sum --check --strict --quiet
+    unzip -o -q -j "$W/dejavu.zip" dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf dejavu-fonts-ttf-2.37/LICENSE -d "$P/fonts"
+    mv "$P/fonts/LICENSE" "$P/fonts/DejaVu-LICENSE"
+fi
 if [[ ! -f $P/include/SDL3/SDL.h ]]; then
     cp -R "$S/sdl/include/SDL3" "$P/include/"
 fi

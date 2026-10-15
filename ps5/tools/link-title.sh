@@ -133,6 +133,8 @@ cp "$param" "$root/ps5/sce_sys/icon0.png" "$app.new/sce_sys/"
 cp "$vulkan/runtime/libc.prx" "$app.new/sce_module/libc.prx"
 # what the runtime finds next to its executable (rt_resource): the start screen's font (OFL)
 cp "$root/third_party/fonts/Baloo2/Baloo2-SemiBold.ttf" "$app.new/"
+# and the game's system font where no Switch font was imported (runtime/hle/pl.c)
+cp "$root/build/ps5-deps/prefix/fonts/DejaVuSans.ttf" "$app.new/"
 cp "$root/ps5/HOW-TO-INSTALL.txt" "$app.new/"
 # The notices: this project's licence and README (its "License" section names every bundled part), and each part
 # the title links, with its revision
