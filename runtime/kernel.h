@@ -22,6 +22,7 @@ struct KThread {
     KObject obj;  // signaled when the thread exits
     Cpu cpu;
     pthread_t host;
+    void *stack;  // its host stack, where the platform places it (plat_thread_stack), else NULL
     uint64_t entry, tlr, id;
     uint32_t handle;
     int prio, core;

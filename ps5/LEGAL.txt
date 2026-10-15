@@ -1,0 +1,12 @@
+LAS Recomp for the PS5
+
+No game is included. This title runs The Legend of Zelda: Link's Awakening (Nintendo Switch, v1.0.0) from game files
+you dumped from your own copy, and game code built on your own PC from them. Neither may be shared.
+
+The title as distributed is licensed under the GNU General Public License, version 3 or later, as a whole: it links
+the PS5 platform layer and PS5_Vulkan, which are GPL-3.0-or-later. LAS Recomp's own code is MIT; every part keeps
+its own licence, listed in licenses/README.txt with its source. The complete source of this build, and the scripts
+that fetch and build every part at the revisions listed, are at https://github.com/KongaTime/LASRecomp (ps5/).
+
+Not affiliated with or endorsed by Nintendo or Sony Interactive Entertainment. "The Legend of Zelda" and "Link's
+Awakening" are trademarks of Nintendo. "PlayStation" and "PS5" are trademarks of Sony Interactive Entertainment Inc.

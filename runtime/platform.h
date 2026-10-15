@@ -1,5 +1,5 @@
 // Host OS layer: everything the runtime needs that differs between macOS and Windows.
-// Implementations: runtime/platform/macos.c, runtime/platform/windows.c (the Makefile picks one).
+// Implementations: runtime/platform/macos.c, windows.c, linux.c (the Makefile picks one), ps5.c (ps5/CMakeLists.txt).
 #pragma once
 #include <stdbool.h>
 #include <stddef.h>
@@ -36,8 +36,14 @@ void plat_thread_realtime(uint64_t period_ns);  // periodic timing thread (vsync
 void plat_init(void);                                // first thing in main()
 bool plat_exe_path(char *buf, size_t size);
 void plat_exec(char *const argv[]);  // replace the process (NULL = same command line); returns only on failure
-#if defined(_WIN32) || defined(__linux__)
+#if defined(_WIN32) || defined(__linux__) || defined(__PROSPERO__)
 void plat_terminate(void);  // end the process now, skipping DLL teardown (exit status 0)
+#endif
+#ifdef __PROSPERO__
+// A guest thread's host stack (kernel.c), backed as the thread reaches it: the console's own stacks for a thread
+// that asks for one come from a small budget. NULL = let pthread place it. Freed once the thread has been joined.
+void *plat_thread_stack(size_t size);
+void plat_thread_stack_free(void *stack);
 #endif
 
 // Child processes (seed generator, game-file extraction). stdout + stderr go to log_path (NULL = /dev/null).

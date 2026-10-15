@@ -219,6 +219,9 @@ static void thread_start(KThread *t) {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, 256ull << 20);  // guest recursion runs on the host stack
+#ifdef __PROSPERO__
+    if ((t->stack = plat_thread_stack(256ull << 20))) pthread_attr_setstack(&attr, t->stack, 256ull << 20);
+#endif
     t->started = true;
     pthread_create(&t->host, &attr, thread_main, t);
     pthread_attr_destroy(&attr);
@@ -806,7 +809,13 @@ void kernel_stop_threads(void (*idle)(void)) {
     }
     int n = 0;
     for (KThread *t = g_threads; t; t = t->anext)
-        if (t->started) { pthread_join(t->host, NULL); n++; }
+        if (t->started) {
+            pthread_join(t->host, NULL);
+            n++;
+#ifdef __PROSPERO__
+            if (t->stack) plat_thread_stack_free(t->stack);
+#endif
+        }
     LOG("[reboot] %d guest threads stopped in %llums\n", n, (unsigned long long)((plat_now_ns() - t0) / 1000000));
 }
 

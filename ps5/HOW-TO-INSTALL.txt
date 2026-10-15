@@ -1,0 +1,22 @@
+LAS Recomp for the PS5 - installing
+
+No game is included. You need your own copy of The Legend of Zelda: Link's Awakening for Nintendo Switch, v1.0.0.
+
+On the console: a homebrew enabler (etaHEN), ShadowMountPlus and an FTP server.
+
+1. Copy this folder (the one holding eboot.bin) to /data/homebrew/PPSA99400/ on the console over FTP.
+
+2. On a PC, set up your game files with LAS Recomp ("Set up game files" on its start screen), then build the game
+   code for the PS5 from LAS Recomp's source, at the version of this title:
+
+       python3 ps5/tools/gamelib.py build <LAS Recomp's data folder>/extracted
+
+3. Copy that extracted folder to /data/homebrew/PPSA99400/extracted/ over FTP.
+
+4. Launch LAS Recomp from the home screen.
+
+The touch pad click is the Switch's Minus; touch pad + OPTIONS opens LAS Recomp's menu. Saves and settings are kept
+in /data/homebrew/PPSA99400/. If something goes wrong, lasrecomp.log there says where (copy it before launching
+again: the next launch replaces it).
+
+Details: ps5/README.md in https://github.com/KongaTime/LASRecomp

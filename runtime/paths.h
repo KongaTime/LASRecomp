@@ -9,6 +9,7 @@
 //   3. macOS: ~/Library/Application Support/com.peiikai.lasrecomp (the .app bundle itself is never written to)
 //      Windows: the folder of the .exe (portable, no installer); refuses to start, with a message, if not writable
 //      Linux: $XDG_DATA_HOME/lasrecomp (~/.local/share/lasrecomp)
+//      PS5: the title's folder, /app0 (ps5/README.md)
 //
 // Resources: files that ship with the app (helper programs, the window icon) - next to the executable (the
 // Windows folder, the .app's Contents/MacOS), in the .app's Contents/Resources, or in the source tree.
