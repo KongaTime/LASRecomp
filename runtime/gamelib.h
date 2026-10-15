@@ -11,6 +11,9 @@
 #if defined(_WIN32)
 #define GAMELIB_NAME "lasgame.dll"
 #define GAMELIB_EXPORT __declspec(dllexport)
+#elif defined(__PROSPERO__)
+#define GAMELIB_NAME "lasgame.ps5.so"  // (built on a PC for the console: ps5/tools/gamelib.py)
+#define GAMELIB_EXPORT __attribute__((visibility("default")))
 #elif defined(__APPLE__)
 #define GAMELIB_NAME "lasgame.dylib"
 #define GAMELIB_EXPORT __attribute__((visibility("default")))

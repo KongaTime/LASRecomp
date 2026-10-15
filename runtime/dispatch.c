@@ -27,7 +27,7 @@ typedef struct { const char *name; HostFn fn; } HleImpl;
 #ifdef __APPLE__
 extern const HleImpl __start_hle_impls[] __asm__("section$start$__DATA$__hle_impls");
 extern const HleImpl __stop_hle_impls[] __asm__("section$end$__DATA$__hle_impls");
-#elif defined(__linux__)
+#elif defined(__ELF__)
 extern const HleImpl __start_hle_impls[], __stop_hle_impls[];  // (ELF: defined by the linker)
 #else
 // PE/COFF: the linker sorts .hle$a < .hle$m (entries, hle.h) < .hle$z by the text after '$'.

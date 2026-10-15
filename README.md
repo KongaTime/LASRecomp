@@ -18,6 +18,8 @@ native Windows, macOS and Linux application.
 > - Linux - x86-64, Vulkan graphics backend (AppImage)
 > - Linux aarch64 (ARM) - **experimental**: built but untested on real hardware; reports welcome
 >   ([docs/linux.md](docs/linux.md) lists what to include)
+> - PS5 (jailbroken, as a homebrew title) - **experimental**: builds, not yet run on a console
+>   ([ps5/README.md](ps5/README.md))
 
 ![Mabe Village in a 21:9 window: the unlocked aspect ratio shows more of the island](docs/ultrawide.jpg)
 

@@ -783,10 +783,12 @@ static void prelaunch_tab(float sc) {
     if (ImGui::Button("Show in Explorer")) reveal_folder(g_root);
 #elif defined(__linux__)
     if (ImGui::Button("Open folder")) reveal_folder(g_root);
-#else
+#elif !defined(__PROSPERO__)  // (the PS5: no file browser; the folder is reached over FTP)
     if (ImGui::Button("Show in Finder")) reveal_folder(g_root);
 #endif
+#ifndef __PROSPERO__
     ImGui::SameLine();
+#endif
     static bool shot_del = getenv("LARECOMP_LAUNCHER_SHOT") && strstr(getenv("LARECOMP_LAUNCHER_SHOT"), ":askdelete");
     if (ImGui::Button("Delete game files") || shot_del) ImGui::OpenPopup("##delfiles"), shot_del = false;  // (test: :askdelete)
     if (ImGui::BeginPopupModal("##delfiles", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar)) {
@@ -1300,6 +1302,23 @@ extern "C" void launcher_run(const char *root) {
                     if (focus_first > 0 && focus_first--) ImGui::SetFocusID(ImGui::GetItemID(), ImGui::GetCurrentWindow());
                 };
                 opt_begin("##files", sc);
+#ifdef __PROSPERO__
+                // The console can't recompile the game (no compiler, no child processes) and writes slowly past its
+                // first GB or so: the game files and the game code are set up on a PC and copied over (ps5/README.md)
+                if (!ready) {
+                    std::string ps5_d = "The PS5 can't recompile the game itself. On a PC, set up your own game files "
+                                        "of Link's Awakening (v1.0.0) and build the game code for the PS5 with LAS "
+                                        "Recomp's PS5 tools (ps5/README.md), then copy the extracted folder over FTP to "
+                                        "/data/homebrew/" PS5_TITLE_ID "/extracted. The game isn't included with LAS Recomp.";
+                    if (!status.empty()) ps5_d += "\n\nNow: " + status + ".";
+                    opt_section("Your copy of the game");
+                    if (opt_action("Check again", status.empty() ? "Ready" : "Not ready", ps5_d.c_str(), true)) {
+                        status = check_game_files(g_root);
+                        if (status.empty()) { load_background(dev); page = MAIN; }
+                    }
+                    first_row();
+                } else
+#else
                 if (!ready) {
                     opt_section("Your copy of the game");
                     if (busy) opt_disable_next();
@@ -1318,7 +1337,9 @@ extern "C" void launcher_run(const char *root) {
                         pthread_detach(t);
                     }
                     files_gb = -1;  // (re-measured after a setup)
-                } else {
+                } else
+#endif
+                {
                     // DELETE: frees LAS Recomp's copy (runtime/paths.c removes only what the setup made, only inside
                     // the data root). Saves, seeds, settings and the user's own files stay.
                     if (files_gb < 0) files_gb = rt_game_files_size(g_root.c_str()) / 1e9;

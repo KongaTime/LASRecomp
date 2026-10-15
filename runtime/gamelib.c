@@ -6,6 +6,8 @@
 #include <string.h>
 #ifdef _WIN32
 #include <windows.h>
+#elif defined(__PROSPERO__)
+#include "platform/ps5_elf.h"
 #else
 #include <dlfcn.h>
 #endif
@@ -60,6 +62,9 @@ static const GameLibTables *open_lib(const char *path) {
     HMODULE h = LoadLibraryA(path);
     if (!h) { snprintf(g_error, sizeof g_error, "can't load %s (error %lu)", path, GetLastError()); return NULL; }
     GameLibEntry entry = (GameLibEntry)(void *)GetProcAddress(h, GAMELIB_ENTRY);
+#elif defined(__PROSPERO__)
+    GameLibEntry entry = (GameLibEntry)ps5_elf_load(path, g_error, sizeof g_error);  // (no dlopen: its own loader)
+    if (!entry) return NULL;
 #else
     void *h = dlopen(path, RTLD_NOW | RTLD_LOCAL);
     if (!h) { snprintf(g_error, sizeof g_error, "%s", dlerror()); return NULL; }
