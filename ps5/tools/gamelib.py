@@ -23,6 +23,7 @@ SPDX-License-Identifier: MIT
 import concurrent.futures
 import hashlib
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -90,8 +91,16 @@ def link_command(lld, out, rsp):
             '--hash-style=sysv', '--build-id=none', '-o', out, '@' + rsp]
 
 
+def wsl_path(p):
+    """A Windows path given in WSL (C:\\Users\\... or C:/Users/...) as WSL names it: /mnt/c/Users/..."""
+    m = re.match(r'^([A-Za-z]):[\\/](.*)$', p)
+    if m and os.path.isdir('/mnt/' + m.group(1).lower()):
+        return '/mnt/' + m.group(1).lower() + '/' + m.group(2).replace('\\', '/')
+    return p
+
+
 def build(game_dir):
-    game_dir = os.path.abspath(game_dir)
+    game_dir = os.path.abspath(wsl_path(game_dir))
     for nso in ('main', 'sdk'):
         if not os.path.isfile(os.path.join(game_dir, 'exefs', nso)):
             sys.exit(f'gamelib.py: no exefs/{nso} in {game_dir} (set the game files up with LAS Recomp on a PC first)')
