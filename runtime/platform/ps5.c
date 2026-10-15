@@ -254,6 +254,14 @@ void plat_init(void) {
     ps5_umask(0);
     log_start();
     fprintf(stderr, "[plat] PS5: log %s\n", g_log_path);
+    // How the title's folder answers (the data root: runtime/paths.c needs it a writable folder it can make current)
+    struct stat st;
+    int sr = stat("/app0", &st), se = sr ? errno : 0;
+    FILE *t = fopen("/app0/.write_test", "wb");
+    int fe = t ? 0 : errno;
+    if (t) fclose(t), remove("/app0/.write_test");
+    fprintf(stderr, "[plat] /app0: stat %d (errno %d, folder %d), write %s (errno %d)\n", sr, se,
+            sr == 0 && S_ISDIR(st.st_mode), t ? "ok" : "refused", fe);
     sceSystemServiceHideSplashScreen();  // (the shell's splash covers every frame until then)
 }
 

@@ -74,6 +74,15 @@ if ((${#bound[@]})); then
 fi
 # The title's ending (ps5/src/title.c): exit and its kin ask the shell to close the title
 title_flags=(--wrap=exit --wrap=_exit --wrap=_Exit --wrap=atexit)
+# The working directory the title keeps where the console refuses chdir (ps5/src/cwd.c): every path call wrapped
+for name in chdir getcwd open fopen stat lstat mkdir rmdir unlink remove rename chmod truncate utime utimes access \
+        opendir realpath; do
+    title_flags+=("--wrap=$name")
+done
+# (the wraps stay the title's own: a name the SDK's libc stubs also use would otherwise be exported, which the
+# converter refuses)
+printf '{\n    local:\n        __wrap_*;\n};\n' > "$work/link/title-wraps-local.map"
+title_flags+=(--version-script "$work/link/title-wraps-local.map")
 # RADV's dispatch tables name every entry point weakly, most of them defined by no one: those are null, statically.
 # Left as dynamic imports, the converter would look for each in the SDK's stubs and refuse the title. As PS5_Vulkan
 # links its driver tests (tools/build.sh): --no-dynamic-linker keeps them out of the dynamic symbols (lld 18), and
