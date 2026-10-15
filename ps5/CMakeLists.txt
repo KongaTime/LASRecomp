@@ -35,6 +35,10 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_S
 	${ROOT}/runtime/hle/hle_symbols.txt ${ROOT}/runtime/cpu.h ${ROOT}/runtime/simd.h ${ROOT}/runtime/simd_fp.h
 	${ROOT}/runtime/gamelib.h)
 message(STATUS "LAS Recomp: game code id ${GAMELIB_ID}")
+# The title's id (sce_sys/param.json): its folder on the console, /data/homebrew/<id>/, named on the start screen
+file(READ ${CMAKE_CURRENT_SOURCE_DIR}/sce_sys/param.json param_json)
+string(JSON PS5_TITLE_ID GET "${param_json}" titleId)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/sce_sys/param.json)
 
 # --- the runtime (the Makefile's RT_SRC, BACKEND_SRC, UI_SRC, IMGUI_OBJ) ------------------------------------------
 file(GLOB rt_sources ${ROOT}/runtime/*.c ${ROOT}/runtime/hle/*.c ${ROOT}/runtime/services/*.c ${ROOT}/runtime/nvn/*.c
@@ -64,7 +68,7 @@ target_include_directories(lasrt PRIVATE ${ROOT}/runtime ${ROOT}/runtime/nvn ${i
 # into the title (ps5/sdl/sdl_ps5.c starts it); ImGui's Vulkan backend takes them from volk too. ImGui's own
 # open-in-shell helper (fork / exec) has nothing to start on the console.
 target_compile_definitions(lasrt PRIVATE VK_NO_PROTOTYPES IMGUI_IMPL_VULKAN_USE_VOLK IMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS
-	"GAMELIB_ID=\"${GAMELIB_ID}\""
+	"GAMELIB_ID=\"${GAMELIB_ID}\"" "PS5_TITLE_ID=\"${PS5_TITLE_ID}\""
 	"GAMELIB_CFLAGS=\"ps5/tools/gamelib.py\"")
 # -fno-omit-frame-pointer: the console's crash backtraces are frame-pointer walks (runtime/platform/ps5.c).
 # -march=znver2: the console's CPU (Zen 2).

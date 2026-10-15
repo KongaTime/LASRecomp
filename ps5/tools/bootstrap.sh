@@ -99,4 +99,4 @@ ok "the payload SDK at $(cat "$sdk/.ps5-sdk-revision" | cut -c1-12)"
 bash "$root/ps5/tools/build-deps.sh" "$sdk" > /dev/null
 ok "the libraries (build/ps5-deps)"
 echo
-echo "Ready: ps5/tools/build.sh builds the title into build/ps5/dist/PPSA99400/."
+echo "Ready: ps5/tools/build.sh builds the title into build/ps5/dist/PPSA99450/."

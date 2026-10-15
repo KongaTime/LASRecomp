@@ -1309,7 +1309,7 @@ extern "C" void launcher_run(const char *root) {
                     std::string ps5_d = "The PS5 can't recompile the game itself. On a PC, set up your own game files "
                                         "of Link's Awakening (v1.0.0) and build the game code for the PS5 with LAS "
                                         "Recomp's PS5 tools (ps5/README.md), then copy the extracted folder over FTP to "
-                                        "/data/homebrew/PPSA99400/extracted. The game isn't included with LAS Recomp.";
+                                        "/data/homebrew/" PS5_TITLE_ID "/extracted. The game isn't included with LAS Recomp.";
                     if (!status.empty()) ps5_d += "\n\nNow: " + status + ".";
                     opt_section("Your copy of the game");
                     if (opt_action("Check again", status.empty() ? "Ready" : "Not ready", ps5_d.c_str(), true)) {
