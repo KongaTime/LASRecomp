@@ -15,6 +15,7 @@
 
 #include <math.h>
 #include <pthread.h>
+#include <sched.h>
 #include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,6 +48,14 @@ static uint64_t g_t0;
 Uint64 SDL_GetTicksNS(void) { return now_ns() - g_t0; }
 Uint64 SDL_GetTicks(void) { return SDL_GetTicksNS() / 1000000ull; }
 void SDL_Delay(Uint32 ms) { usleep(ms * 1000u); }
+// A sleep to just short of the end, then a spin on the clock (frame pacing: runtime/nvn/vulkan/exec.c)
+void SDL_DelayPrecise(Uint64 ns) {
+    uint64_t end = now_ns() + ns;
+    for (uint64_t t; (t = now_ns()) < end;) {
+        if (end - t > 1000000ull) usleep((useconds_t)((end - t - 500000ull) / 1000));
+        else sched_yield();
+    }
+}
 __attribute__((constructor)) static void ticks_start(void) { g_t0 = now_ns(); }
 
 // The console's CPU: 8 Zen 2 cores with SMT. 16 GB, of which a title is given about 12 (direct memory).

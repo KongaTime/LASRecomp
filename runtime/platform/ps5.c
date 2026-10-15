@@ -148,6 +148,11 @@ void plat_commit(uint64_t addr, uint64_t size) {
     }
 }
 
+int plat_written_pages(uint64_t addr, uint64_t size, uint64_t *pages, int max, uint64_t *page) {  // (no write tracking)
+    (void)addr, (void)size, (void)pages, (void)max, (void)page;
+    return -1;
+}
+
 int plat_protect(uint64_t addr, uint64_t size, int prot) {
     int p = prot == PLAT_PROT_NONE ? 0 : prot == PLAT_PROT_READ ? PS5_SHM_READ : PS5_SHM_READ | PS5_SHM_WRITE;
     if (addr >= g_lo && addr + size <= g_hi) {
