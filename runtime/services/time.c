@@ -58,8 +58,9 @@ static void steady_clock(Service *s, IpcReq *req, IpcResp *resp) {
 
 static void to_calendar(int64_t t, IpcResp *resp, int utc) {
     time_t tt = (time_t)t;
-    struct tm tm;
-    if (utc) gmtime_r(&tt, &tm); else localtime_r(&tt, &tm);
+    struct tm tm = {0};
+    // (no local time where the host has no time zone - the PS5 title's sandbox: UTC then)
+    if (utc || !localtime_r(&tt, &tm)) utc = 1, gmtime_r(&tt, &tm);
     uint8_t *o = resp->data;
     *(uint16_t *)o = (uint16_t)(tm.tm_year + 1900);
     o[2] = (uint8_t)(tm.tm_mon + 1); o[3] = (uint8_t)tm.tm_mday;
@@ -73,7 +74,7 @@ static void to_calendar(int64_t t, IpcResp *resp, int utc) {
     memcpy(o + 16, utc ? "UTC" : "LCL", 4);
 #else
     long gmtoff = tm.tm_gmtoff;
-    memcpy(o + 16, utc ? "UTC" : tm.tm_zone, 4);
+    memcpy(o + 16, utc || !tm.tm_zone ? "UTC" : tm.tm_zone, 4);
 #endif
     *(uint32_t *)(o + 24) = (uint32_t)tm.tm_isdst;
     *(int32_t *)(o + 28) = utc ? 0 : (int32_t)gmtoff;

@@ -25,7 +25,6 @@
 
 #include "../platform.h"
 
-int sceKernelDebugOutText(int channel, const char *text);
 int sceSystemServiceLoadExec(const char *path, const char *const *argv);
 int sceKernelUsleep(uint32_t microseconds);
 
@@ -193,48 +192,21 @@ void plat_thread_realtime(uint64_t period_ns) {
 }
 
 // ---- process
-// The log: everything written to stderr goes to lasrecomp.log in the title folder (fetched over FTP: the record a run
-// leaves) and, line by line, to klog. A title may not dup2, so stderr moves to a pipe that a thread drains, as the
-// platform layer's ps5_klog_capture_stderr does it (ps5platform/klog.h); the file gets every byte, klog every line.
+// The log: everything written to stderr goes straight to lasrecomp.log in the title folder (fetched over FTP: the
+// record a run leaves), line-buffered and written by the thread that writes it, so a crash report is in the file
+// before the title goes (a pipe drained by a thread of its own lost the last lines, the report among them).
 static char g_log_path[256];
 static int g_log_fd = -1;
-
-static void *log_reader(void *arg) {
-    int rd = (int)(intptr_t)arg;
-    char line[900], chunk[4096];
-    size_t len = 0;
-    for (;;) {
-        ssize_t got = read(rd, chunk, sizeof chunk);
-        if (got < 0 && errno == EINTR) continue;
-        if (got <= 0) break;
-        if (g_log_fd >= 0) (void)!write(g_log_fd, chunk, (size_t)got);
-        for (ssize_t i = 0; i < got; i++) {
-            if (chunk[i] == '\n' || len == sizeof line - 2) {
-                line[len++] = '\n';
-                line[len] = 0;
-                sceKernelDebugOutText(0, line);
-                len = 0;
-                if (chunk[i] == '\n') continue;
-            }
-            line[len++] = chunk[i];
-        }
-    }
-    return NULL;
-}
 
 static void log_start(void) {
     snprintf(g_log_path, sizeof g_log_path, "/app0/lasrecomp.log");
     // (a log of this run only: the one before is kept for a crash that ended it)
     rename("/app0/lasrecomp.log", "/app0/lasrecomp.previous.log");
     g_log_fd = open(g_log_path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if (g_log_fd >= 0) fchmod(g_log_fd, 0666);  // (FTP is another process: whatever the umask gave)
+    if (g_log_fd < 0) return;
+    fchmod(g_log_fd, 0666);  // (FTP is another process: whatever the umask gave)
     chmod("/app0/lasrecomp.previous.log", 0666);
-    int ends[2];
-    pthread_t th;
-    if (pipe(ends) != 0) return;
-    if (pthread_create(&th, NULL, log_reader, (void *)(intptr_t)ends[0]) != 0) { close(ends[0]); close(ends[1]); return; }
-    pthread_detach(th);
-    FILE *f = fdopen(ends[1], "w");
+    FILE *f = fdopen(g_log_fd, "w");
     if (!f) return;
     setvbuf(f, NULL, _IOLBF, 0);
     fflush(stderr);
